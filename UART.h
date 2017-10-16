@@ -11,6 +11,7 @@
 #ifndef UART_H_
 #define UART_H_
 
+#include <MK64F12.h>
 #include "DataTypeDefinitions.h"
 
 /**
@@ -90,6 +91,10 @@ void UART_putChar (UART_ChannelType uartChannel, uint8 character);
  	 \return void
  */
 void UART_putString(UART_ChannelType uartChannel, sint8* string);
+
+void UART_clockGating(UART_ChannelType uartChannel);
+
+void UART_clearInterrupt();
 
 #endif /* UART_H_ */
 

@@ -25,9 +25,9 @@ int main(void)
 	/**Enables the clock of PortB in order to configures TX and RX of UART peripheral*/
 	SIM->SCGC5 = SIM_SCGC5_PORTB_MASK;
 	/**Configures the pin control register of pin16 in PortB as UART RX*/
-	PORTB->PCR(16) = PORT_PCR_MUX(3);
+	PORTB->PCR[16] = PORT_PCR_MUX(3);
 	/**Configures the pin control register of pin16 in PortB as UART TX*/
-	PORTB->PCR(17) = PORT_PCR_MUX(3);
+	PORTB->PCR[17] = PORT_PCR_MUX(3);
 	/**Configures UART 0 to transmit/receive at 11520 bauds with a 21 MHz of clock core*/
 	UART_init (UART_0,  21000000, BD_115200);
 	printf("UART is configured");
@@ -65,7 +65,7 @@ int main(void)
 				UART_putChar (UART_0, UART0_MailBox.mailBox);
 
 				/**clear the reception flag*/
-				UART0_MailBox.flag =0;
+				UART0_MailBox.flag = 0;
 			}
 	}
 	
