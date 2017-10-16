@@ -1,4 +1,5 @@
 #include "UART.h"
+#include "MK64F12.h"
 
 UART_MailBoxType UART0_MailBox;
 
@@ -23,7 +24,9 @@ void UART_init(UART_ChannelType uartChannel, uint32 systemClk, UART_BaudRateType
 
 void UART0_interruptEnable(UART_ChannelType uartChannel){
 	//UART0->C2 |= UART_C2_TIE_MASK;	//transmitter interrupt enabled
-	UART0->C2 |= UART_C2_RIE_MASK;	//receiver interrupt enabled
+	while(!(UART0->S1 & UART_S1_TC_MASK)){ //checks if there isnt anything being transmitted
+		UART0->C2 |= UART_C2_RIE_MASK;	//receiver interrupt enabled
+	}
 }
 
 
@@ -63,8 +66,8 @@ void UART_putChar (UART_ChannelType uartChannel, uint8 character){
 }
 
 void UART_putString(UART_ChannelType uartChannel, sint8* string){	//todo check if it works properly
-	while (*string)
-		  UART_putChar(uartChannel,*string++);
+	while (*string)		//while there is a char remaining to be transmitted
+		  UART_putChar(uartChannel,*string++);	//calls the put char function
 }
 
 void UART_clockGating(UART_ChannelType uartChannel){
