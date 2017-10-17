@@ -11,19 +11,19 @@ void UART0_Status_IRQHandler(){
 
 void UART_init(UART_ChannelType uartChannel, uint32 systemClk, UART_BaudRateType baudRate){
 	UART_clockGating(uartChannel);		//selected uart clock gating enabled
+
 	uint16 sbr = systemClk/(16*baudRate);	//sbr calculated
 	uint16 brfa = 32*( (systemClk/(16*baudRate))-sbr );	//brfa calculated
 	UART0->C2 &= ~(UART_C2_TE_MASK);	//uart0 transmitter disabled
 	UART0->C2 &= ~(UART_C2_RE_MASK);	//uart0 receiver disabled
-	UART0->BDH |= UART_BDH_SBR((sbr&0x1F00)>>8); //sbr[12:8] loaded in baud raute high register
-	UART0->BDL |= UART_BDL_SBR(sbr&0xFF);		 //sbr[7:0] loaded in baud rate low register
+	UART0->BDH |= ((sbr & UART_BDH_SBR_MASK) >> 8);
+	UART0->BDL |= (sbr & UART_BDL_SBR_MASK);
 	UART0->C4 |= UART_C4_BRFA(brfa);	//brfa loaded in c4 register brfa field
 	UART0->C2 |= UART_C2_TE_MASK;		//uart0 transmitter enabled
 	UART0->C2 |= UART_C2_RE_MASK;		//uart0 receiver enabled
 }
 
 void UART0_interruptEnable(UART_ChannelType uartChannel){
-	//UART0->C2 |= UART_C2_TIE_MASK;	//transmitter interrupt enabled
 	while(!(UART0->S1 & UART_S1_TC_MASK)){ //checks if there isnt anything being transmitted
 		UART0->C2 |= UART_C2_RIE_MASK;	//receiver interrupt enabled
 	}
@@ -33,9 +33,8 @@ void UART0_interruptEnable(UART_ChannelType uartChannel){
 void UART_putChar (UART_ChannelType uartChannel, uint8 character){
 	switch(uartChannel){
 	case UART_0:
-		if(FALSE == (UART0->S1 & UART_S1_TDRE_MASK)>>7){	//if uart0 s1 register tdre field is false,
-				UART0->D = character;						//sends the character
-		}
+		while(!(UART0->S1 & UART_S1_TDRE_MASK));
+		UART0->D = character;						//sends the character
 		break;
 	case UART_1:
 		if(FALSE == (UART1->S1 & UART_S1_TDRE_MASK)>>7){	//if uart1 s1 register tdre field is false,

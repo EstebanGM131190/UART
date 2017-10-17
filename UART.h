@@ -91,8 +91,23 @@ void UART_putChar (UART_ChannelType uartChannel, uint8 character);
  	 \return void
  */
 void UART_putString(UART_ChannelType uartChannel, sint8* string);
+/********************************************************************************************/
+/********************************************************************************************/
+/********************************************************************************************/
+/*!
+ 	 \brief	 It activates the UART clock gating.
+ 	 \param[in]  uartChannel indicates the UART channel.
+ 	 \return void
+ */
 
 void UART_clockGating(UART_ChannelType uartChannel);
+/********************************************************************************************/
+/********************************************************************************************/
+/********************************************************************************************/
+/*!
+ 	 \brief	 It clears the mailbox flag
+ 	 \return void
+ */
 
 void UART_clearInterrupt();
 
