@@ -10,17 +10,20 @@ void UART0_Status_IRQHandler(){
 }
 
 void UART_init(UART_ChannelType uartChannel, uint32 systemClk, UART_BaudRateType baudRate){
-	UART_clockGating(uartChannel);		//selected uart clock gating enabled
 
-	uint16 sbr = systemClk/(16*baudRate);	//sbr calculated
-	uint16 brfa = 32*( (systemClk/(16*baudRate))-sbr );	//brfa calculated
-	UART0->C2 &= ~(UART_C2_TE_MASK);	//uart0 transmitter disabled
-	UART0->C2 &= ~(UART_C2_RE_MASK);	//uart0 receiver disabled
-	UART0->BDH |= ((sbr & UART_BDH_SBR_MASK) >> 8);
-	UART0->BDL |= (sbr & UART_BDL_SBR_MASK);
-	UART0->C4 |= UART_C4_BRFA(brfa);	//brfa loaded in c4 register brfa field
-	UART0->C2 |= UART_C2_TE_MASK;		//uart0 transmitter enabled
-	UART0->C2 |= UART_C2_RE_MASK;		//uart0 receiver enabled
+	uint32 SBR;
+	uint8 brfa=0;
+
+	SBR = (uint16)((systemClk)/(baudRate * 16));
+	brfa = (uint8)(2*((systemClk)/(baudRate)) - (SBR * 32));
+	brfa &= 0x1F;
+
+	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
+	UART0->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+	UART0->BDH |=  (((SBR & 0x1F00) >> 8));
+	UART0->BDL = (uint8)(SBR & 0x00FF);
+	UART0->C4 |= brfa;
+	UART0->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 }
 
 void UART0_interruptEnable(UART_ChannelType uartChannel){
